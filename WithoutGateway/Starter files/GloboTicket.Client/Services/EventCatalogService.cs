@@ -40,7 +40,6 @@ namespace GloboTicket.Web.Services
                 Scope = "globalticket.fullaccess"
             });
 
-
             token = tokenResponse.AccessToken;
             return token;
         }

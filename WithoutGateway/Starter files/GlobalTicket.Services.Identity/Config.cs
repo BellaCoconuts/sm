@@ -34,13 +34,23 @@ namespace GlobalTicket.Services.Identity
         public static IEnumerable<Client> Clients =>
             new Client[]
             {
-                new Client()
+                new Client
                 {
                     ClientName = "GlobalTicket Machine 2 Machine Client",
                     ClientId = "globalticketm2m",
                     ClientSecrets = { new Secret("0d0da600-9a2e-4a2d-932a-796ec72b0100".Sha256())},
                     AllowedGrantTypes = GrantTypes.ClientCredentials,
                     AllowedScopes = { "globalticket.fullaccess" }
+                },
+                new Client()
+                {
+                    ClientName = "GlobalTicket Interactive Client",
+                    ClientId = "globalticketinteractive",
+                    ClientSecrets = { new Secret("0d0da600-9a2e-4a2d-932a-796ec72b010e".Sha256())},
+                    AllowedGrantTypes = GrantTypes.Code,
+                    RedirectUris={ "https://localhost:5000/signin-oidc" },
+                    PostLogoutRedirectUris = { "https://localhost:5000/signout-callback-oidc"},
+                    AllowedScopes = { "openid", "profile", "globalticket.fullaccess" }
                 }
             };
     }
