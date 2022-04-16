@@ -30,7 +30,6 @@ namespace GloboTicket.Web
                 .RequireAuthenticatedUser()
                 .Build();
 
-
             var builder = services.AddControllersWithViews(options
                 => options.Filters.Add(new AuthorizeFilter(requiredAuthenticationUserPolicy)));
 
@@ -55,12 +54,12 @@ namespace GloboTicket.Web
             {
                 options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                 options.Authority = "https://localhost:5010/";
-                options.ClientId = "globalticketinteractive";
+                options.ClientId = "globalticket";
                 options.ResponseType = "code";
                 options.SaveTokens = true;
                 options.ClientSecret = "0d0da600-9a2e-4a2d-932a-796ec72b010e";
                 options.GetClaimsFromUserInfoEndpoint = true;
-                options.Scope.Add("globalticket.fullaccess");
+                options.Scope.Add("shoppingbasket.fullaccess");
             });
 
 

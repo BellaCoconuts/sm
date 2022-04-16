@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using GloboTicket.Services.EventCatalog.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -8,6 +9,7 @@ using System.Threading.Tasks;
 namespace GloboTicket.Services.EventCatalog.Controllers
 {
     [Route("api/events")]
+    [Authorize(Policy = "CanRead")]
     [ApiController]
     public class EventController : ControllerBase
     {

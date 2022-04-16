@@ -41,7 +41,7 @@ namespace GloboTicket.Services.ShoppingBasket
                 .AddJwtBearer(options =>
                 {
                     options.Authority = "https://localhost:5010/";
-                    options.Audience = "globalticket";
+                    options.Audience = "shoppingbasket";
                 });
 
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
@@ -70,6 +70,8 @@ namespace GloboTicket.Services.ShoppingBasket
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Shopping Basket API", Version = "v1" });
             });
+
+            services.AddHttpContextAccessor();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
