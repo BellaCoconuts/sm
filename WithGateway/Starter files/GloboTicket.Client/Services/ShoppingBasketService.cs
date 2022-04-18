@@ -28,6 +28,7 @@ namespace GloboTicket.Web.Services
         {
             if (basketId == Guid.Empty)
             {
+                client.SetBearerToken(await httpContextAccessor.HttpContext.GetTokenAsync("access_token"));
                 var basketResponse = await client.PostAsJson("api/baskets", new BasketForCreation { UserId =
                       Guid.Parse(httpContextAccessor.HttpContext
                       .User.Claims.FirstOrDefault(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value)
@@ -45,6 +46,7 @@ namespace GloboTicket.Web.Services
             if (basketId == Guid.Empty)
                 return null;
 
+            client.SetBearerToken(await httpContextAccessor.HttpContext.GetTokenAsync("access_token"));
             var response = await client.GetAsync($"api/baskets/{basketId}");
             return await response.ReadContentAs<Basket>();
         }
@@ -54,6 +56,7 @@ namespace GloboTicket.Web.Services
             if (basketId == Guid.Empty)
                 return new BasketLine[0];
 
+            client.SetBearerToken(await httpContextAccessor.HttpContext.GetTokenAsync("access_token"));
             var response = await client.GetAsync($"api/baskets/{basketId}/basketLines");
             return await response.ReadContentAs<BasketLine[]>();
 
@@ -61,16 +64,19 @@ namespace GloboTicket.Web.Services
 
         public async Task UpdateLine(Guid basketId, BasketLineForUpdate basketLineForUpdate)
         {
+            client.SetBearerToken(await httpContextAccessor.HttpContext.GetTokenAsync("access_token"));
             await client.PutAsJson($"api/baskets/{basketId}/basketLines/{basketLineForUpdate.LineId}", basketLineForUpdate);
         }
 
         public async Task RemoveLine(Guid basketId, Guid lineId)
         {
+            client.SetBearerToken(await httpContextAccessor.HttpContext.GetTokenAsync("access_token"));
             await client.DeleteAsync($"api/baskets/{basketId}/basketLines/{lineId}");
         }
 
         public async Task<BasketForCheckout> Checkout(Guid basketId, BasketForCheckout basketForCheckout)
         {
+            client.SetBearerToken(await httpContextAccessor.HttpContext.GetTokenAsync("access_token"));
             var response = await client.PostAsJson($"api/baskets/checkout", basketForCheckout);
             return response.IsSuccessStatusCode
                 ? await response.ReadContentAs<BasketForCheckout>()

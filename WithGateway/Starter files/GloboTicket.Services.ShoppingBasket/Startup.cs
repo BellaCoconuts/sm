@@ -14,6 +14,9 @@ using System;
 using System.Net.Http;
 using Polly;
 using Polly.Extensions.Http;
+using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace GloboTicket.Services.ShoppingBasket
 {
@@ -28,7 +31,18 @@ namespace GloboTicket.Services.ShoppingBasket
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
+            var policy = new AuthorizationPolicyBuilder()
+                .RequireAuthenticatedUser()
+                .Build();
+
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(policy =>
+                {
+                    policy.Authority = "https://localhost:5010/";
+                    policy.Audience = "shoppingbasket";
+                });
+
+            services.AddControllers(config => config.Filters.Add(new AuthorizeFilter()));
 
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
@@ -78,6 +92,8 @@ namespace GloboTicket.Services.ShoppingBasket
             app.UseRouting();
 
             app.UseAuthorization();
+
+            app.UseAuthentication();
 
             app.UseEndpoints(endpoints =>
             {

@@ -20,18 +20,18 @@ namespace GloboTicket.Services.Identity
             new ApiScope[]
             {
                 new ApiScope("eventcatalog.fullaccess"),
-                new ApiScope("eventcatalog.read"),
-                new ApiScope("eventcatalog.write"),
+                new ApiScope("eventcatalog.fullaccess"),
                 new ApiScope("shoppingbasket.fullaccess"),
-                new ApiScope("discount.fullaccess")
+                new ApiScope("discount.fullaccess"),
+                new ApiScope("globalticketgateway.fullaccess")
             };
 
-        public static IEnumerable<ApiResource>ApiResources =>
+        public static IEnumerable<ApiResource> ApiResources =>
             new ApiResource[]
             {
                 new ApiResource("eventcatalog", "Event catalog API")
                 {
-                    Scopes = { "eventcatalog.read", "eventcatalog.write" }
+                    Scopes = { "eventcatalog.fullaccess" }
                 },
                 new ApiResource("shoppingbasket", "Shopping basket API")
                 {
@@ -40,9 +40,13 @@ namespace GloboTicket.Services.Identity
                 new ApiResource("discount", "Discount API")
                 {
                     Scopes = { "discount.fullaccess" }
+                },
+                new ApiResource("globalticketgateway", "GlobalTicket Gateway")
+                {
+                    Scopes = { "globalticketgateway.fullaccess" }
                 }
             };
-     
+
         public static IEnumerable<Client> Clients =>
             new Client[]
             {
@@ -54,9 +58,9 @@ namespace GloboTicket.Services.Identity
                     ClientSecrets = { new Secret("0cdea0bc-779e-4368-b46b-09956f70712c".Sha256()) },
                     AllowedScopes = {
                          "openid", "profile", "discount.fullaccess" }
-                }, 
+                },
                 new Client
-                {  
+                {
                     ClientName = "GloboTicket Machine 2 Machine Client",
                     ClientId = "globoticketm2m",
                     ClientSecrets = { new Secret("eac7008f-1b35-4325-ac8d-4a71932e6088".Sha256()) },
@@ -83,9 +87,12 @@ namespace GloboTicket.Services.Identity
                     RedirectUris = { "https://localhost:5000/signin-oidc" },
                     PostLogoutRedirectUris = { "https://localhost:5000/signout-callback-oidc" },
                     RequireConsent = false,
-                    AllowedScopes = { "openid", "profile", "shoppingbasket.fullaccess", "eventcatalog.read", "eventcatalog.write" }
+                    AllowedScopes = { "openid",
+                         "profile",
+                         "globalticketgateway.fullaccess",
+                         "shoppingbasket.fullaccess",
+                         "eventcatalog.fullaccess" }
                 }
-
 
                 //// m2m client credentials flow client
                 //new Client

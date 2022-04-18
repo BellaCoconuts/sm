@@ -103,19 +103,14 @@ namespace GloboTicket.Services.ShoppingBasket.Controllers
                 Coupon coupon = null;
 
                 // TODO get the user id from 
-                var userId = basketCheckout.UserId;
+                //var userId = basketCheckout.UserId;
+
+                var userId = Guid.Parse(HttpContext.Request.Headers["CurrentUser"][0]);
 
                 if (!(userId == Guid.Empty))
                     coupon = await discountService.GetCoupon(userId);
 
-                if (coupon != null)
-                {
-                    basketCheckoutMessage.BasketTotal = total - coupon.Amount;
-                }
-                else
-                {
-                    basketCheckoutMessage.BasketTotal = total;
-                }
+                basketCheckoutMessage.BasketTotal = coupon != null ? total - coupon.Amount : total;
 
                 try
                 {

@@ -12,6 +12,9 @@ using System;
 using System.Net.Http;
 using Polly;
 using Polly.Extensions.Http;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc.Authorization;
 
 namespace GloboTicket.Services.EventCatalog
 {
@@ -26,6 +29,17 @@ namespace GloboTicket.Services.EventCatalog
 
         public void ConfigureServices(IServiceCollection services)
         {
+            var policy = new AuthorizationPolicyBuilder()
+                            .RequireAuthenticatedUser()
+                            .Build();
+
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.Authority = "https://localhost:5010";
+                    options.Audience = "eventcatalog";
+                });
+
             services.AddDbContext<EventCatalogDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
@@ -34,7 +48,8 @@ namespace GloboTicket.Services.EventCatalog
 
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-            services.AddControllers();
+            services.AddControllers(config => config.Filters.Add(new AuthorizeFilter(policy)));
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "EventDto Catalog API", Version = "v1" });
@@ -61,6 +76,8 @@ namespace GloboTicket.Services.EventCatalog
             app.UseRouting();
 
             app.UseAuthorization();
+
+            app.UseAuthentication();
 
             app.UseEndpoints(endpoints =>
             {
