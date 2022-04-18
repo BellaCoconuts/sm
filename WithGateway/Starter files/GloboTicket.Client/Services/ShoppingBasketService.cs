@@ -28,7 +28,7 @@ namespace GloboTicket.Web.Services
         {
             if (basketId == Guid.Empty)
             {
-                var basketResponse = await client.PostAsJson("/api/baskets", new BasketForCreation { UserId =
+                var basketResponse = await client.PostAsJson("api/baskets", new BasketForCreation { UserId =
                       Guid.Parse(httpContextAccessor.HttpContext
                       .User.Claims.FirstOrDefault(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value)
                 });
@@ -45,7 +45,7 @@ namespace GloboTicket.Web.Services
             if (basketId == Guid.Empty)
                 return null;
 
-            var response = await client.GetAsync($"/api/baskets/{basketId}");
+            var response = await client.GetAsync($"api/baskets/{basketId}");
             return await response.ReadContentAs<Basket>();
         }
 
@@ -54,30 +54,27 @@ namespace GloboTicket.Web.Services
             if (basketId == Guid.Empty)
                 return new BasketLine[0];
 
-            var response = await client.GetAsync($"/api/baskets/{basketId}/basketLines");
+            var response = await client.GetAsync($"api/baskets/{basketId}/basketLines");
             return await response.ReadContentAs<BasketLine[]>();
 
         }
 
         public async Task UpdateLine(Guid basketId, BasketLineForUpdate basketLineForUpdate)
         {
-            await client.PutAsJson($"/api/baskets/{basketId}/basketLines/{basketLineForUpdate.LineId}", basketLineForUpdate);
+            await client.PutAsJson($"api/baskets/{basketId}/basketLines/{basketLineForUpdate.LineId}", basketLineForUpdate);
         }
 
         public async Task RemoveLine(Guid basketId, Guid lineId)
         {
-            await client.DeleteAsync($"/api/baskets/{basketId}/basketLines/{lineId}");
+            await client.DeleteAsync($"api/baskets/{basketId}/basketLines/{lineId}");
         }
 
         public async Task<BasketForCheckout> Checkout(Guid basketId, BasketForCheckout basketForCheckout)
         {
             var response = await client.PostAsJson($"api/baskets/checkout", basketForCheckout);
-            if(response.IsSuccessStatusCode)
-                return await response.ReadContentAs<BasketForCheckout>();
-            else
-            {
-                throw new Exception("Something went wrong placing your order. Please try again.");
-            }
+            return response.IsSuccessStatusCode
+                ? await response.ReadContentAs<BasketForCheckout>()
+                : throw new Exception("Something went wrong placing your order. Please try again.");
         }
     }
 }
