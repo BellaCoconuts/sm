@@ -78,7 +78,7 @@ namespace GloboTicket.Services.Identity
                     RequireConsent = false,
                     AllowedScopes = { "openid", "profile", "shoppingbasket.fullaccess" }
                 },
-                 new Client
+                new Client
                 {
                     ClientName = "GloboTicket Client",
                     ClientId = "globoticket",
