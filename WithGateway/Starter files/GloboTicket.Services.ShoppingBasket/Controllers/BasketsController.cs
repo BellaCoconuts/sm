@@ -24,9 +24,9 @@ namespace GloboTicket.Services.ShoppingBasket.Controllers
         private readonly IMessageBus messageBus;
         private readonly IDiscountService discountService;
 
-        public BasketsController(IBasketRepository basketRepository, 
-            IMapper mapper, 
-            IMessageBus messageBus, 
+        public BasketsController(IBasketRepository basketRepository,
+            IMapper mapper,
+            IMessageBus messageBus,
             IDiscountService discountService)
         {
             this.basketRepository = basketRepository;
@@ -64,7 +64,7 @@ namespace GloboTicket.Services.ShoppingBasket.Controllers
                 new { basketId = basketEntity.BasketId },
                 basketToReturn);
         }
-         
+
         [HttpPost("checkout")]
         [ProducesResponseType((int)HttpStatusCode.Accepted)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
@@ -105,7 +105,9 @@ namespace GloboTicket.Services.ShoppingBasket.Controllers
                 // TODO get the user id from 
                 //var userId = basketCheckout.UserId;
 
-                var userId = Guid.Parse(HttpContext.Request.Headers["CurrentUser"][0]);
+                //var userId = Guid.Parse(HttpContext.Request.Headers["CurrentUser"][0]);
+
+                var userId = Guid.Parse(User.Claims.FirstOrDefault(c => c.Type == "sub")?.Value);
 
                 if (!(userId == Guid.Empty))
                     coupon = await discountService.GetCoupon(userId);
@@ -125,7 +127,7 @@ namespace GloboTicket.Services.ShoppingBasket.Controllers
                 await basketRepository.ClearBasket(basketCheckout.BasketId);
                 return Accepted(basketCheckoutMessage);
             }
-            catch(BrokenCircuitException ex)
+            catch (BrokenCircuitException ex)
             {
                 string message = ex.Message;
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.StackTrace);

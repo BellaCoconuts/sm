@@ -7,6 +7,8 @@ using Microsoft.Extensions.Hosting;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
 using System.IdentityModel.Tokens.Jwt;
+using GlobalTicket.Gateway.DelegatingHandlers;
+using GlobalTicket.Core;
 
 namespace GlobalTicket.Gateway
 {
@@ -24,16 +26,22 @@ namespace GlobalTicket.Gateway
         {
             JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
-            var authenticationScheme = "GlobalTicketGatewayAuthenticationScheme";
+            var authenticationScheme = "GloboTicketGatewayAuthenticationScheme";
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(authenticationScheme, options =>
                 {
                     options.Authority = "https://localhost:5010";
-                    options.Audience = "globalticketgateway";
+                    options.Audience = ScopeConstants.GloboTicketGateway.Name;
                 });
 
-            services.AddOcelot();
+            services.AddHttpClient();
+
+            services.AddScoped<TokenExchangeDelegatingHandler>();
+
+            services.AddAccessTokenManagement();
+
+            services.AddOcelot().AddDelegatingHandler<TokenExchangeDelegatingHandler>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

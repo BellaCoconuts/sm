@@ -1,7 +1,5 @@
 ﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
-
-
 using GloboTicket.Services.Identity.Services;
 using IdentityServer4;
 using IdentityServerHost.Quickstart.UI;
@@ -27,6 +25,8 @@ namespace GloboTicket.Services.Identity
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
+
+            services.AddHttpClient();
 
             var builder = services.AddIdentityServer(options =>
             {

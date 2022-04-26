@@ -2,6 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
+using GlobalTicket.Core;
+using IdentityModel;
 using IdentityServer4.Models;
 using System.Collections.Generic;
 
@@ -20,10 +22,10 @@ namespace GloboTicket.Services.Identity
             new ApiScope[]
             {
                 new ApiScope("eventcatalog.fullaccess"),
-                new ApiScope("eventcatalog.fullaccess"),
                 new ApiScope("shoppingbasket.fullaccess"),
                 new ApiScope("discount.fullaccess"),
-                new ApiScope("globalticketgateway.fullaccess")
+                new ApiScope(ScopeConstants.GloboTicketGateway.FullAccess),
+                new ApiScope("ordering.fullaccess")
             };
 
         public static IEnumerable<ApiResource> ApiResources =>
@@ -41,9 +43,13 @@ namespace GloboTicket.Services.Identity
                 {
                     Scopes = { "discount.fullaccess" }
                 },
-                new ApiResource("globalticketgateway", "GlobalTicket Gateway")
+                new ApiResource("ordering", "Ordering API")
                 {
-                    Scopes = { "globalticketgateway.fullaccess" }
+                    Scopes = { ScopeConstants.GloboTicketGateway.FullAccess }
+                },
+                new ApiResource("globoticketgateway", "GlobalTicket Gateway")
+                {
+                    Scopes = { "ordering.fullaccess" }
                 }
             };
 
@@ -54,10 +60,10 @@ namespace GloboTicket.Services.Identity
                 {
                     ClientId = "shoppingbaskettodownstreamtokenexchangeclient",
                     ClientName = "Shopping Basket Token Exchange Client",
-                    AllowedGrantTypes = new[] { "urn:ietf:params:oauth:grant-type:token-exchange" },
+                    AllowedGrantTypes = new[] { OidcConstants.GrantTypes.TokenExchange },
                     ClientSecrets = { new Secret("0cdea0bc-779e-4368-b46b-09956f70712c".Sha256()) },
                     AllowedScopes = {
-                         "openid", "profile", "discount.fullaccess" }
+                         "openid", "profile", "discount.fullaccess", "ordering.fullaccess" }
                 },
                 new Client
                 {
@@ -87,11 +93,29 @@ namespace GloboTicket.Services.Identity
                     RedirectUris = { "https://localhost:5000/signin-oidc" },
                     PostLogoutRedirectUris = { "https://localhost:5000/signout-callback-oidc" },
                     RequireConsent = false,
-                    AllowedScopes = { "openid",
+                    AllowOfflineAccess = true,
+                    AccessTokenLifetime = 60,
+                    AllowedScopes = {
+                         "openid",
                          "profile",
-                         "globalticketgateway.fullaccess",
-                         "shoppingbasket.fullaccess",
-                         "eventcatalog.fullaccess" }
+                         ScopeConstants.GloboTicketGateway.FullAccess,
+                         "shoppingbasket.fullaccess"
+                    }
+                },                
+                new Client
+                {
+                    ClientName = "Gateway to Downstream Token Exchange Client",
+                    ClientId = "gatewaytodownstreamtokenexchangeclient",
+                    ClientSecrets = { new Secret("ce766e16-df99-411d-8d31-0f5bbc6b8ebc".Sha256()) },
+                    AllowedGrantTypes = new [] { OidcConstants.GrantTypes.TokenExchange },
+                    RedirectUris = { "https://localhost:5000/signin-oidc" },
+                    PostLogoutRedirectUris = { "https://localhost:5000/signout-callback-oidc" },
+                    RequireConsent = false,
+                    AllowedScopes = {
+                         "openid",
+                         "profile",
+                         "eventcatalog.fullaccess"
+                    }
                 }
 
                 //// m2m client credentials flow client

@@ -1,5 +1,7 @@
+using GlobalTicket.Core;
 using GloboTicket.Web.Models;
 using GloboTicket.Web.Services;
+using IdentityModel;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
@@ -38,13 +40,16 @@ namespace GloboTicket.Web
             if (environment.IsDevelopment())
                 builder.AddRazorRuntimeCompilation();
 
-            services.AddHttpClient<IEventCatalogService, EventCatalogService>(c => 
-                c.BaseAddress = new Uri(config["ApiConfigs:EventCatalog:Uri"]));
-            services.AddHttpClient<IShoppingBasketService, ShoppingBasketService>(c => 
-                c.BaseAddress = new Uri(config["ApiConfigs:ShoppingBasket:Uri"]));
+            services.AddHttpClient<IEventCatalogService, EventCatalogService>(c =>
+                c.BaseAddress = new Uri(config["ApiConfigs:EventCatalog:Uri"]))
+                .AddUserAccessTokenHandler();
+            services.AddHttpClient<IShoppingBasketService, ShoppingBasketService>(c =>
+                c.BaseAddress = new Uri(config["ApiConfigs:ShoppingBasket:Uri"]))
+                .AddUserAccessTokenHandler();
             services.AddHttpClient<IOrderService, OrderService>(c =>
-                c.BaseAddress = new Uri(config["ApiConfigs:Order:Uri"]));
-        
+                c.BaseAddress = new Uri(config["ApiConfigs:Order:Uri"]))
+                .AddUserAccessTokenHandler();
+
             services.AddSingleton<Settings>();
 
             services.AddHttpContextAccessor();
@@ -58,15 +63,17 @@ namespace GloboTicket.Web
             {
                 options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                 options.Authority = "https://localhost:5010/";
-                options.ClientId = "globoticket";
-                options.ResponseType = "code";
+                options.ClientId = ScopeConstants.ClientId.GlobalTicketScheme;
+                options.ResponseType = OidcConstants.ResponseTypes.Code;
                 options.SaveTokens = true;
-                options.ClientSecret = "ce766e16-df99-411d-8d31-0f5bbc6b8eba";
+                options.ClientSecret = config["ClientSecrets:GloboTicket"];
                 options.GetClaimsFromUserInfoEndpoint = true;
-                options.Scope.Add("shoppingbasket.fullaccess");
-                options.Scope.Add("globalticketgateway.fullaccess");
+                options.Scope.Add(ScopeConstants.GloboTicketGateway.FullAccess);
+                options.Scope.Add(ScopeConstants.ShoppingBasket.FullAccess);
+                options.Scope.Add(OidcConstants.StandardScopes.OfflineAccess);
             });
 
+            services.AddAccessTokenManagement();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
